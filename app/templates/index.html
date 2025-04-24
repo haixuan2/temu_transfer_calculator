@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>最晚发货时间计算</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container my-5">
+      <h1 class="mb-4 text-primary"><i class="fas fa-truck-loading"></i> 发货时效计算器</h1>
+      <form method="post" class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label"><i class="far fa-clock"></i> ATA 时间</label>
+          <input type="datetime-local" name="ata" class="form-control" value="{{ ata.replace('/', '-').replace(' ', 'T') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label"><i class="fas fa-exchange-alt"></i> 运输类型</label>
+          <select name="transport" class="form-select">
+            <option {{ 'selected' if transport=='直入' }} value="直入">直入</option>
+            <option {{ 'selected' if transport=='卡转' }} value="卡转">卡转</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label"><i class="fas fa-network-wired"></i> 渠道列表</label>
+          <select name="channels" class="form-select select2" multiple>
+            <option value="727" {% if '727' in ch_str.split(',') %}selected{% endif %}>727</option>
+            <option value="730" {% if '730' in ch_str.split(',') %}selected{% endif %}>730</option>
+            <option value="707" {% if '707' in ch_str.split(',') %}selected{% endif %}>707</option>
+            <option value="700" {% if '700' in ch_str.split(',') %}selected{% endif %}>700</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label"><i class="fas fa-sliders-h"></i> 步长 (分钟)</label>
+          <input type="number" name="step" class="form-control" value="{{ step }}">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> 计算</button>
+        </div>
+      </form>
+
+      {% if results %}
+        <div class="mt-5">
+          <h2 class="text-secondary"><i class="fas fa-list"></i> 结果</h2>
+          <table class="table table-striped table-bordered mt-3">
+            <thead class="table-light">
+              <tr>
+                <th scope="col"><i class="fas fa-road"></i> 渠道</th>
+                <th scope="col"><i class="fas fa-clock"></i> 最晚发货时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ch, t in results.items() %}
+                <tr>
+                  <td>{{ ch }}</td>
+                  <td>{{ t if t else '无可行时间' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Bootstrap JS bundle (optional for interactive components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('select[name="channels"]').select2({
+          placeholder: "请选择渠道",
+          width: '100%'
+        });
+      });
+    </script>
+  </body>
+</html>
